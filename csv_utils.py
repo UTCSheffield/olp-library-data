@@ -8,7 +8,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL',
                                                        'sqlite:///books.db')
 db.init_app(app)
 
-CSV_FILE = 'books_export.csv'
+CSV_FILE = 'books.csv'
 
 
 # Export all Book records to CSV
