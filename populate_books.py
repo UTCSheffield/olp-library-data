@@ -1,6 +1,7 @@
 # populate_books.py
 """
-Script to read ISBNs from isbn.txt, fetch book data using isbnlib, and populate the Book table.
+Script to read ISBNs from isbn.txt, fetch book data using isbnlib,
+and populate the Book table.
 """
 import os
 from flask import Flask
@@ -11,14 +12,17 @@ from isbnlib import is_isbn10, is_isbn13, meta, clean
 META_PROVIDER = 'openl'
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///books.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL',
+                                                       'sqlite:///books.db')
 db.init_app(app)
 
 ISBN_FILE = 'isbn.txt'
 
+
 def valid_isbn(isbn):
     isbn = clean(isbn)
     return is_isbn10(isbn) or is_isbn13(isbn)
+
 
 def fetch_book_data(isbn):
     try:
@@ -31,7 +35,8 @@ def fetch_book_data(isbn):
 
 def populate_books(test_mode=False, test_limit=5):
     """
-    Populate books from ISBN_FILE. If test_mode is True, only process test_limit books.
+    Populate books from ISBN_FILE.
+    If test_mode is True, only process test_limit books.
     """
     with app.app_context():
         db.create_all()
@@ -53,9 +58,11 @@ def populate_books(test_mode=False, test_limit=5):
                 print(f"Added: {isbn} - {book.title}")
                 count += 1
                 if test_mode and count >= test_limit:
-                    print(f"Test mode: processed {test_limit} books. Stopping early.")
+                    print(f"Test mode: processed {test_limit} books."
+                          + " Stopping early.")
                     break
             db.session.commit()
+
 
 if __name__ == "__main__":
     # Set test_mode=True to only process a few books for testing

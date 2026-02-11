@@ -1,7 +1,9 @@
 # models.py
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, MappedAsDataclass, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, MappedAsDataclass
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
+from isbnlib import is_isbn10, is_isbn13, meta, clean
 
 
 # Base that adds dataclass behaviors to mapped classes
@@ -12,21 +14,23 @@ class Base(MappedAsDataclass, DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 
 
-from isbnlib import is_isbn10, is_isbn13, meta, clean
-
 class Book(db.Model):
     __tablename__ = "books"
 
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
     isbn: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
-    title: Mapped[str] = mapped_column(String(256), nullable=True, default=None)
-    authors: Mapped[str] = mapped_column(String(256), nullable=True, default=None)
-    publisher: Mapped[str] = mapped_column(String(128), nullable=True, default=None)
+    title: Mapped[str] = mapped_column(String(256), nullable=True,
+                                       default=None)
+    authors: Mapped[str] = mapped_column(String(256), nullable=True,
+                                         default=None)
+    publisher: Mapped[str] = mapped_column(String(128), nullable=True,
+                                           default=None)
     year: Mapped[str] = mapped_column(String(10), nullable=True, default=None)
 
     def __post_init__(self):
         # Only auto-populate if only ISBN is provided (other fields are None)
-        if self.isbn and not (self.title or self.authors or self.publisher or self.year):
+        if self.isbn and not (self.title or self.authors or self.publisher or
+                              self.year):
             isbn = clean(self.isbn)
             if not (is_isbn10(isbn) or is_isbn13(isbn)):
                 raise ValueError(f"Invalid ISBN: {isbn}")
